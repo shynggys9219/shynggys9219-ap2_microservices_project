@@ -13,7 +13,7 @@ type Employee struct {
 	HiredBy      uint64 // user id that hired an employee
 	HiredAt      time.Time
 	UpdatedAt    time.Time
-	DeletedAt    *time.Time
+	DeletedAt    *time.Time // optional
 }
 
 type Position struct {
