@@ -10,7 +10,7 @@ type Employee struct {
 	Email        string
 	Phone        string
 	PasswordHash string
-	HiredBy      uint64 // user id that hired an employee
+	HiredBy      uint64 // api-gateway id that hired an employee
 	HiredAt      time.Time
 	UpdatedAt    time.Time
 	DeletedAt    *time.Time // optional
