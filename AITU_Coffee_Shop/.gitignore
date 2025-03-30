@@ -1,5 +1,4 @@
 .idea
 .vscode
 go.work
-*.env
 .DS_Store
