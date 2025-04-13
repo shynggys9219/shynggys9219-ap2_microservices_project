@@ -22,6 +22,7 @@ func (u *Client) Create(ctx context.Context, request model.Client) (model.Client
 	if err != nil {
 		return model.Client{}, err
 	}
+	request.ID = id
 
 	err = u.repo.Create(ctx, request)
 	if err != nil {
@@ -35,8 +36,8 @@ func (u *Client) Create(ctx context.Context, request model.Client) (model.Client
 }
 
 func (u *Client) Update(ctx context.Context, request model.Client) (model.Client, error) {
-	//TODO implement me
-	panic("implement me")
+	//err := u.repo.Update(ctx, model.ClientFilter{ID: request.ID}, dao.FromClientUpdateData(request))
+	return model.Client{}, nil
 }
 
 func (u *Client) Get(ctx context.Context, id uint64) (model.Client, error) {

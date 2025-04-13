@@ -21,6 +21,11 @@ var (
 		Code:    http.StatusBadRequest,
 		Message: "password must contain at least 8 symbols, 1 capital letter and 1 special symbol",
 	}
+
+	ErrInvalidID = &HTTPError{
+		Code:    http.StatusBadRequest,
+		Message: "you provided wrong id",
+	}
 )
 
 func FromError(err error) *HTTPError {
@@ -29,6 +34,8 @@ func FromError(err error) *HTTPError {
 		return ErrInvalidEmail
 	case errors.Is(err, model.ErrInvalidPassword):
 		return ErrInvalidPassword
+	case errors.Is(err, model.ErrInvalidID):
+		return ErrInvalidID
 	default:
 		return &HTTPError{
 			Code:    http.StatusInternalServerError,

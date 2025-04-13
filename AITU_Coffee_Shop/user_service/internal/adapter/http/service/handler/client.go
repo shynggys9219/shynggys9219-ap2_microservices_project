@@ -36,3 +36,22 @@ func (c *Client) Create(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, dto.ToClientCreateResponse(newClient))
 }
+
+func (c *Client) Update(ctx *gin.Context) {
+	client, err := dto.FromClientUpdateRequest(ctx)
+	if err != nil {
+		errCtx := dto.FromError(err)
+		ctx.JSON(errCtx.Code, gin.H{"error": errCtx.Message})
+
+		return
+	}
+
+	updatedClient, err := c.uc.Update(ctx.Request.Context(), client)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.ToClientUpdateResponse(updatedClient))
+}

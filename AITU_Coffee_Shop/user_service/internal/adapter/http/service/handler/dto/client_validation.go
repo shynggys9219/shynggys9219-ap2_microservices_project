@@ -27,6 +27,28 @@ func validateClientCreateRequest(req ClientCreateRequest) error {
 	return nil
 }
 
+func validateClientUpdateRequest(req ClientUpdateRequest) error {
+	if req.ID == 0 {
+		return model.ErrInvalidID
+	}
+
+	if req.Email != nil {
+		reEmail := regexp.MustCompile(emailRegex)
+		if !reEmail.MatchString(*req.Email) {
+			return model.ErrInvalidEmail
+		}
+
+	}
+	if req.Password != nil {
+		rePassword := regexp.MustCompile(passwordRegex)
+		if !rePassword.MatchString(*req.Password) {
+			return model.ErrInvalidPassword
+		}
+	}
+
+	return nil
+}
+
 func validateEmail(email string) error {
 	re := regexp.MustCompile(emailRegex)
 	if !re.MatchString(email) {

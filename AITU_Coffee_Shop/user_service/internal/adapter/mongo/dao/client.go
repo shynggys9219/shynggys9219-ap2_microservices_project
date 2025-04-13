@@ -63,11 +63,7 @@ func FromClientFilter(filter model.ClientFilter) bson.M {
 
 func FromClientUpdateData(updateData model.ClientUpdateData) bson.M {
 	query := bson.M{}
-
-	if updateData.Name != nil {
-		query["name"] = *updateData.Name
-	}
-
+	
 	if updateData.Name != nil {
 		query["name"] = *updateData.Name
 	}

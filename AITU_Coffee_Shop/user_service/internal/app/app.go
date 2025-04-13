@@ -9,7 +9,8 @@ import (
 	"syscall"
 
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/config"
-	httpservice "github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/http/service"
+	grpcserver "github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/grpc/server"
+	httpserver "github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/http/service"
 	mongorepo "github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/mongo"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/usecase"
 	mongocon "github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/mongo"
@@ -18,7 +19,8 @@ import (
 const serviceName = "user-service"
 
 type App struct {
-	httpServer *httpservice.API
+	httpServer *httpserver.API
+	grpcServer *grpcserver.API
 }
 
 func New(ctx context.Context, cfg *config.Config) (*App, error) {
@@ -38,17 +40,28 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	userUsecase := usecase.NewUser(aiRepo, userRepo)
 
 	// http service
-	httpServer := httpservice.New(cfg.Server, userUsecase)
+	httpServer := httpserver.New(cfg.Server, userUsecase)
+
+	gRPCServer := grpcserver.New(
+		cfg.Server.GRPCServer,
+		userUsecase,
+	)
 
 	app := &App{
 		httpServer: httpServer,
+		grpcServer: gRPCServer,
 	}
 
 	return app, nil
 }
 
-func (a *App) Close() {
+func (a *App) Close(ctx context.Context) {
 	err := a.httpServer.Stop()
+	if err != nil {
+		log.Println("failed to shutdown gRPC service", err)
+	}
+
+	err = a.grpcServer.Stop(ctx)
 	if err != nil {
 		log.Println("failed to shutdown gRPC service", err)
 	}
@@ -56,8 +69,9 @@ func (a *App) Close() {
 
 func (a *App) Run() error {
 	errCh := make(chan error, 1)
-
+	ctx := context.Background()
 	a.httpServer.Run(errCh)
+	a.grpcServer.Run(ctx, errCh)
 
 	log.Println(fmt.Sprintf("service %v started", serviceName))
 
@@ -72,7 +86,7 @@ func (a *App) Run() error {
 	case s := <-shutdownCh:
 		log.Println(fmt.Sprintf("received signal: %v. Running graceful shutdown...", s))
 
-		a.Close()
+		a.Close(ctx)
 		log.Println("graceful shutdown completed!")
 	}
 

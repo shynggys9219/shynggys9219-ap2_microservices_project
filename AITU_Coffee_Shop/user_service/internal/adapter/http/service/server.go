@@ -56,6 +56,7 @@ func (a *API) setupRoutes() {
 		clients := v1.Group("/clients")
 		{
 			clients.POST("/", a.clientHandler.Create)
+			clients.POST("/update/:id", a.clientHandler.Update)
 		}
 	}
 }

@@ -1,7 +1,9 @@
-package backoffice
+package frontend
 
 import (
-	svc "github.com/shynggys9219/ap2-apis-user-service/generated/github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
+	"context"
+
+	svc "github.com/shynggys9219/ap2-apis-gen-user-service/service/github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
 )
 
 type User struct {
@@ -10,6 +12,13 @@ type User struct {
 	uc ClientUsecase
 }
 
-func NewUser() *User {
+func NewUser(uc ClientUsecase) *User {
+	return &User{
+		uc: uc,
+	}
+}
 
+func (u *User) Create(ctx context.Context, req *svc.CreateRequest) (*svc.CreateResponse, error) {
+
+	return &svc.CreateResponse{Id: 0}, nil
 }
