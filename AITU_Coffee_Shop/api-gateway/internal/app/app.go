@@ -16,7 +16,7 @@ import (
 	"github.com/shynggys9219/ap2_microservices_project/api-gateway/pkg/grpcconn"
 )
 
-const serviceName = "user-service"
+const serviceName = "api-gateway"
 
 type App struct {
 	httpServer *httpserver.API
@@ -60,7 +60,7 @@ func (a *App) Run() error {
 
 	// Waiting signal
 	shutdownCh := make(chan os.Signal, 1)
-	signal.Notify(shutdownCh, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(shutdownCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 
 	select {
 	case errRun := <-errCh:
