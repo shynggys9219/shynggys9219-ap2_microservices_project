@@ -31,6 +31,19 @@ func FromClient(client model.Client) Client {
 	}
 }
 
+func ToClient(client Client) model.Client {
+	return model.Client{
+		ID:           client.ID,
+		Name:         client.Name,
+		Phone:        client.Phone,
+		Email:        client.Email,
+		PasswordHash: client.PasswordHash,
+		CreatedAt:    client.CreatedAt,
+		UpdatedAt:    client.UpdatedAt,
+		IsDeleted:    client.IsDeleted,
+	}
+}
+
 func FromClientFilter(filter model.ClientFilter) bson.M {
 	query := bson.M{}
 
@@ -63,7 +76,7 @@ func FromClientFilter(filter model.ClientFilter) bson.M {
 
 func FromClientUpdateData(updateData model.ClientUpdateData) bson.M {
 	query := bson.M{}
-	
+
 	if updateData.Name != nil {
 		query["name"] = *updateData.Name
 	}

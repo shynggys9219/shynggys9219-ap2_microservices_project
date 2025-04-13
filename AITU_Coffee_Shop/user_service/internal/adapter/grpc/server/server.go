@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	frontendsvc "github.com/shynggys9219/ap2-apis-gen-user-service/service/client/v1"
+	frontendsvc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/config"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/grpc/server/frontend"
 )
@@ -71,7 +71,7 @@ func (a *API) run(ctx context.Context) error {
 	a.s = grpc.NewServer(a.setOptions(ctx)...)
 
 	// Register bo services
-	frontendsvc.RegisterClientServiceServer(a.s, frontend.NewUser(a.clientUsecase))
+	frontendsvc.RegisterClientServiceServer(a.s, frontend.NewClient(a.clientUsecase))
 
 	// Register reflection service
 	reflection.Register(a.s)

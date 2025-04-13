@@ -7,5 +7,8 @@ import (
 )
 
 type ClientUsecase interface {
-	Create(ctx context.Context, client model.Client) (model.Client, error)
+	Create(ctx context.Context, request model.Client) (model.Client, error)
+	Update(ctx context.Context, request model.Client) (model.Client, error)
+	Get(ctx context.Context, id uint64) (model.Client, error)
+	Delete(ctx context.Context, id uint64) error
 }

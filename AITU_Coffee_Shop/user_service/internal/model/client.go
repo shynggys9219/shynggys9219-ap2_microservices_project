@@ -3,13 +3,14 @@ package model
 import "time"
 
 type Client struct {
-	ID           uint64
-	Name         string
-	Phone        string
-	Email        string
-	PasswordHash string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID              uint64
+	Name            string
+	Phone           string
+	Email           string
+	PasswordHash    string
+	NewPasswordHash string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 
 	IsDeleted bool
 }
@@ -30,7 +31,6 @@ type ClientUpdateData struct {
 	Phone        *string
 	Email        *string
 	PasswordHash *string
-	CreatedAt    *time.Time
 	UpdatedAt    *time.Time
 
 	IsDeleted *bool
