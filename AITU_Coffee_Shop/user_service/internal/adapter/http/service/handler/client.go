@@ -19,7 +19,7 @@ func NewClient(uc ClientUsecase) *Client {
 }
 
 func (c *Client) Create(ctx *gin.Context) {
-	client, err := dto.FromClientCreateRequest(ctx)
+	client, err := dto.ToClientFromCreateRequest(ctx)
 	if err != nil {
 		errCtx := dto.FromError(err)
 		ctx.JSON(errCtx.Code, gin.H{"error": errCtx.Message})
@@ -34,11 +34,11 @@ func (c *Client) Create(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ToClientCreateResponse(newClient))
+	ctx.JSON(http.StatusOK, dto.FromClientToCreateResponse(newClient))
 }
 
 func (c *Client) Update(ctx *gin.Context) {
-	client, err := dto.FromClientUpdateRequest(ctx)
+	client, err := dto.ToClientFromUpdateRequest(ctx)
 	if err != nil {
 		errCtx := dto.FromError(err)
 		ctx.JSON(errCtx.Code, gin.H{"error": errCtx.Message})
@@ -53,5 +53,5 @@ func (c *Client) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ToClientUpdateResponse(updatedClient))
+	ctx.JSON(http.StatusOK, dto.FromClientToUpdateResponse(updatedClient))
 }

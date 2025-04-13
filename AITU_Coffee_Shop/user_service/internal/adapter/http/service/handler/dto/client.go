@@ -31,7 +31,7 @@ type ClientUpdateResponse struct {
 	Phone string `json:"phone"`
 }
 
-func FromClientCreateRequest(ctx *gin.Context) (model.Client, error) {
+func ToClientFromCreateRequest(ctx *gin.Context) (model.Client, error) {
 	var req ClientCreateRequest
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
@@ -57,7 +57,7 @@ func FromClientCreateRequest(ctx *gin.Context) (model.Client, error) {
 	}, nil
 }
 
-func ToClientCreateResponse(client model.Client) ClientCreateResponse {
+func FromClientToCreateResponse(client model.Client) ClientCreateResponse {
 	return ClientCreateResponse{
 		ID:    client.ID,
 		Email: client.Email,
@@ -73,7 +73,7 @@ func hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func FromClientUpdateRequest(ctx *gin.Context) (model.Client, error) {
+func ToClientFromUpdateRequest(ctx *gin.Context) (model.Client, error) {
 	var req ClientUpdateRequest
 	var client model.Client
 	err := ctx.ShouldBindJSON(&req)
@@ -103,7 +103,7 @@ func FromClientUpdateRequest(ctx *gin.Context) (model.Client, error) {
 	return client, nil
 }
 
-func ToClientUpdateResponse(client model.Client) ClientUpdateResponse {
+func FromClientToUpdateResponse(client model.Client) ClientUpdateResponse {
 	return ClientUpdateResponse{
 		Email: client.Email,
 		Name:  client.Name,
