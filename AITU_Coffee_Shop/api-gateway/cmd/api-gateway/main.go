@@ -1,50 +1,36 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
 	"log"
-	"net/http"
+
+	"github.com/shynggys9219/ap2_microservices_project/api-gateway/config"
+	"github.com/shynggys9219/ap2_microservices_project/api-gateway/internal/app"
 )
 
 func main() {
-	r := gin.Default()
+	ctx := context.Background()
+	// TODO: add telemetry here when the topic of logging will be covered
 
-	r.POST("/register", func(c *gin.Context) {
-		resp, err := http.Post("http://localhost:8080/api/v1/clients/", "application/json", c.Request.Body)
-		if err != nil {
-			c.JSON(http.StatusBadGateway, gin.H{"error": err})
-			return
-		}
-		defer resp.Body.Close()
+	// Parse config
+	cfg, err := config.New()
+	if err != nil {
+		log.Printf("failed to parse config: %v", err)
 
-		_, err = http.Post("http://localhost:8002/increment", "application/json", nil)
-		if err != nil {
-			log.Printf("http.Post: statistics: %v", err)
-		}
+		return
+	}
 
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+	application, err := app.New(ctx, cfg)
+	if err != nil {
+		log.Println("failed to setup application:", err)
 
-	})
+		return
+	}
 
-	r.POST("/login", func(c *gin.Context) {
-		resp, err := http.Post("http://localhost:8001/login", "application/json", c.Request.Body)
-		if err != nil {
-			c.JSON(http.StatusBadGateway, gin.H{"error": "user service down"})
-			return
-		}
-		defer resp.Body.Close()
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
-	})
+	err = application.Run()
+	if err != nil {
+		log.Println("failed to run application: ", err)
 
-	r.GET("/stats", func(c *gin.Context) {
-		resp, err := http.Get("http://localhost:8002/stats")
-		if err != nil {
-			c.JSON(http.StatusBadGateway, gin.H{"error": "stats service down"})
-			return
-		}
-		defer resp.Body.Close()
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
-	})
-
-	r.Run(":8000")
+		return
+	}
 }
