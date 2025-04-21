@@ -16,3 +16,7 @@ type ClientRepo interface {
 	GetWithFilter(ctx context.Context, filter model.ClientFilter) (model.Client, error)
 	GetListWithFilter(ctx context.Context, filter model.ClientFilter) ([]model.Client, error)
 }
+
+type ClientEventStorage interface {
+	Push(ctx context.Context, client model.Client) error
+}

@@ -3,9 +3,11 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/nats/producer"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/config"
@@ -14,6 +16,8 @@ import (
 	mongorepo "github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/mongo"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/usecase"
 	mongocon "github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/mongo"
+
+	natsconn "github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/nats"
 )
 
 const serviceName = "user-service"
@@ -32,12 +36,22 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("mongo: %w", err)
 	}
 
+	// nats client
+	log.Println("connecting to NATS", "hosts", strings.Join(cfg.Nats.Hosts, ","))
+	natsClient, err := natsconn.NewClient(ctx, cfg.Nats.Hosts, cfg.Nats.NKey, cfg.Nats.IsTest)
+	if err != nil {
+		return nil, fmt.Errorf("nats.NewClient: %w", err)
+	}
+	log.Println("NATS connection status is", natsClient.Conn.Status().String())
+
+	clientProducer := producer.NewClientProducer(natsClient, cfg.Nats.NatsSubjects.ClientEventSubject)
+
 	// Repository
 	aiRepo := mongorepo.NewAi(mongoDB.Conn)
 	userRepo := mongorepo.NewClient(mongoDB.Conn)
 
 	// UseCase
-	userUsecase := usecase.NewUser(aiRepo, userRepo)
+	userUsecase := usecase.NewUser(aiRepo, userRepo, clientProducer)
 
 	// http service
 	httpServer := httpserver.New(cfg.Server, userUsecase)

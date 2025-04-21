@@ -7,6 +7,8 @@ type Client struct {
 	Name            string
 	Phone           string
 	Email           string
+	CurrentPassword string
+	NewPassword     string
 	PasswordHash    string
 	NewPasswordHash string
 	CreatedAt       time.Time
