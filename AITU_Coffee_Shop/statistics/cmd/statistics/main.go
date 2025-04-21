@@ -2,85 +2,35 @@ package main
 
 import (
 	"context"
-	"github.com/shynggys9219/ap2-apis-gen-user-service/events/v1"
-	"google.golang.org/protobuf/proto"
 	"log"
-	"strings"
-	"time"
 
-	"github.com/nats-io/nats.go"
+	"github.com/shynggys9219/ap2_microservices_project/statistics/config"
+	"github.com/shynggys9219/ap2_microservices_project/statistics/internal/app"
 )
 
-type Client struct {
-	ID              uint64
-	Name            string
-	Phone           string
-	Email           string
-	CurrentPassword string
-	NewPassword     string
-	PasswordHash    string
-	NewPasswordHash string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-
-	IsDeleted bool
-}
-
-// Simulate proto.Unmarshal for your proto message
-func UnmarshalCreatedEvent(data []byte) (*Client, error) {
-	var msg events.Client
-	err := proto.Unmarshal(data, &msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Client{
-		ID:        msg.Id,
-		Name:      msg.Name,
-		Phone:     msg.Phone,
-		Email:     msg.Email,
-		CreatedAt: msg.CreatedAt.AsTime(),
-		IsDeleted: msg.IsDeleted,
-	}, nil
-}
-
 func main() {
-	natsHosts := "localhost:4222,localhost:4222,localhost:4222"
-	subject := "ap2.user_svc.event.created"
+	ctx := context.Background()
+	// TODO: add telemetry here when the topic of logging will be covered
 
-	// Connect to NATS with default settings
-	nc, err := nats.Connect(strings.Join(strings.Split(natsHosts, ","), ","))
+	// Parse config
+	cfg, err := config.New()
 	if err != nil {
-		log.Fatalf("failed to connect to NATS: %v", err)
-	}
-	defer nc.Drain()
+		log.Printf("failed to parse config: %v", err)
 
-	log.Println("Connected to NATS")
-
-	// Subscribe to the subject
-	_, err = nc.Subscribe(subject, func(m *nats.Msg) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		defer cancel()
-
-		msg, err := UnmarshalCreatedEvent(m.Data)
-		if err != nil {
-			log.Printf("failed to parse message: %v", err)
-			return
-		}
-
-		log.Printf("[Received] ID: %s | Name: %s", msg.ID, msg.Name)
-
-		select {
-		case <-ctx.Done():
-			log.Println("context timeout while processing")
-		default:
-			log.Println("processed message")
-		}
-	})
-	if err != nil {
-		log.Fatalf("failed to subscribe to %s: %v", subject, err)
+		return
 	}
 
-	log.Printf("Listening on subject: %s", subject)
-	select {}
+	application, err := app.New(ctx, cfg)
+	if err != nil {
+		log.Println("failed to setup application:", err)
+
+		return
+	}
+
+	err = application.Run()
+	if err != nil {
+		log.Println("failed to run application: ", err)
+
+		return
+	}
 }
