@@ -9,9 +9,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	svc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
+	statisticsvc "github.com/shynggys9219/ap2-apis-gen-statistics-service/service/frontend/client_stats/v1"
+	usersvc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
 	"github.com/shynggys9219/ap2_microservices_project/api-gateway/config"
-	grpcclient "github.com/shynggys9219/ap2_microservices_project/api-gateway/internal/adapter/grpc/client"
+	grpcusersvcclient "github.com/shynggys9219/ap2_microservices_project/api-gateway/internal/adapter/grpc/client"
+	grpcstatisticssvcclient "github.com/shynggys9219/ap2_microservices_project/api-gateway/internal/adapter/grpc/statistics"
 	httpserver "github.com/shynggys9219/ap2_microservices_project/api-gateway/internal/adapter/http/server"
 	"github.com/shynggys9219/ap2_microservices_project/api-gateway/pkg/grpcconn"
 )
@@ -30,12 +32,21 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	clientServiceClient := grpcclient.NewClient(svc.NewClientServiceClient(clientServiceGRPCConn))
+	statsServiceGRPCConn, err := grpcconn.New(cfg.GRPC.GRPCClient.StatisticsServiceURL)
+	if err != nil {
+		return nil, err
+	}
+
+	clientServiceClient := grpcusersvcclient.NewClient(usersvc.NewClientServiceClient(clientServiceGRPCConn))
+	clientStatisticClient := grpcstatisticssvcclient.NewClient(
+		statisticsvc.NewClientStatisticsServiceClient(statsServiceGRPCConn),
+	)
 
 	clientUsecase := usecase.NewClient(clientServiceClient)
+	clientStatisticUsecase := usecase.NewClientStatistic(clientStatisticClient)
 
 	// http service
-	httpServer := httpserver.New(cfg.Server, clientUsecase)
+	httpServer := httpserver.New(cfg.Server, clientUsecase, clientStatisticUsecase)
 
 	app := &App{
 		httpServer: httpServer,

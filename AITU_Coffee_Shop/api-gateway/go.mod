@@ -4,7 +4,8 @@ go 1.23.1
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/shynggys9219/ap2-apis-gen-user-service v1.0.3
+	github.com/shynggys9219/ap2-apis-gen-statistics-service v1.1.0
+	github.com/shynggys9219/ap2-apis-gen-user-service v1.1.0
 	google.golang.org/grpc v1.71.1
 )
 

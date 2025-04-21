@@ -26,11 +26,12 @@ type ClientCreateResponse struct {
 }
 
 type ClientUpdateRequest struct {
-	ID       uint64  `json:"id"`
-	Email    *string `json:"email,omitempty"`
-	Password *string `json:"password,omitempty"`
-	Name     *string `json:"fullName,omitempty"`
-	Phone    *string `json:"phone,omitempty"`
+	ID          uint64  `json:"id"`
+	Email       *string `json:"email,omitempty"`
+	Password    *string `json:"currentPassword,omitempty"`
+	NewPassword *string `json:"newPassword,omitempty"`
+	Name        *string `json:"fullName,omitempty"`
+	Phone       *string `json:"phone,omitempty"`
 }
 
 type ClientUpdateResponse struct {
@@ -77,7 +78,6 @@ func hashPassword(password string) (string, error) {
 
 func ToClientFromUpdateRequest(ctx *gin.Context) (model.Client, error) {
 	var req ClientUpdateRequest
-	var client model.Client
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -91,7 +91,14 @@ func ToClientFromUpdateRequest(ctx *gin.Context) (model.Client, error) {
 		return model.Client{}, err
 	}
 
-	return client, nil
+	return model.Client{
+		ID:              req.ID,
+		Name:            *req.Name,
+		Phone:           *req.Phone,
+		Email:           *req.Email,
+		CurrentPassword: *req.Password,
+		NewPassword:     *req.NewPassword,
+	}, nil
 }
 
 func FromClientToUpdateResponse(client model.Client) ClientUpdateResponse {

@@ -6,17 +6,17 @@ import (
 )
 
 type Client struct {
-	presenter ClientPresenter
+	clientPresenter ClientPresenter
 }
 
 func NewClient(presenter ClientPresenter) *Client {
 	return &Client{
-		presenter: presenter,
+		clientPresenter: presenter,
 	}
 }
 
 func (c *Client) Create(ctx context.Context, request model.Client) (model.Client, error) {
-	client, err := c.presenter.Create(ctx, request)
+	client, err := c.clientPresenter.Create(ctx, request)
 	if err != nil {
 		return model.Client{}, err
 	}
@@ -25,7 +25,7 @@ func (c *Client) Create(ctx context.Context, request model.Client) (model.Client
 }
 
 func (c *Client) Update(ctx context.Context, request model.Client) (model.Client, error) {
-	client, err := c.presenter.Update(ctx, request)
+	client, err := c.clientPresenter.Update(ctx, request)
 	if err != nil {
 		return model.Client{}, err
 	}
@@ -34,9 +34,9 @@ func (c *Client) Update(ctx context.Context, request model.Client) (model.Client
 }
 
 func (c *Client) Get(ctx context.Context, id uint64) (model.Client, error) {
-	return c.presenter.Get(ctx, id)
+	return c.clientPresenter.Get(ctx, id)
 }
 
 func (c *Client) Delete(ctx context.Context, id uint64) error {
-	return c.presenter.Delete(ctx, id)
+	return c.clientPresenter.Delete(ctx, id)
 }

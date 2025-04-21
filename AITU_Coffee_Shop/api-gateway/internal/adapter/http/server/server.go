@@ -23,10 +23,11 @@ type API struct {
 	cfg    config.HTTPServer
 	addr   string
 
-	clientHandler *handler.Client
+	clientHandler          *handler.Client
+	clientStatisticHandler *handler.ClientStatistic
 }
 
-func New(cfg config.Server, client ClientUsecase) *API {
+func New(cfg config.Server, client ClientUsecase, clientStatistic ClientStatisticUsecase) *API {
 	// Setting the Gin mode
 	gin.SetMode(cfg.HTTPServer.Mode)
 	// Creating a new Gin Engine
@@ -37,12 +38,14 @@ func New(cfg config.Server, client ClientUsecase) *API {
 
 	// Binding presenter
 	clientHandler := handler.NewClient(client)
+	clientStatisticHandler := handler.NewClientStatistic(clientStatistic)
 
 	api := &API{
-		server:        server,
-		cfg:           cfg.HTTPServer,
-		addr:          fmt.Sprintf(serverIPAddress, cfg.HTTPServer.Port),
-		clientHandler: clientHandler,
+		server:                 server,
+		cfg:                    cfg.HTTPServer,
+		addr:                   fmt.Sprintf(serverIPAddress, cfg.HTTPServer.Port),
+		clientHandler:          clientHandler,
+		clientStatisticHandler: clientStatisticHandler,
 	}
 
 	api.setupRoutes()
@@ -58,6 +61,12 @@ func (a *API) setupRoutes() {
 			clients.POST("/", a.clientHandler.Create)
 			clients.PUT("/update/:id", a.clientHandler.Update)
 			clients.GET("/client/:id", a.clientHandler.Get)
+		}
+
+		clientStatistic := v1.Group("/statistic")
+		{
+			clientStatistic.GET("/client/:id", a.clientStatisticHandler.Get)
+			clientStatistic.GET("/clients", a.clientStatisticHandler.List)
 		}
 	}
 }

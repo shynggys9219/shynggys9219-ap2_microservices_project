@@ -14,3 +14,13 @@ type Client struct {
 
 	IsDeleted bool
 }
+
+type ClientStatistic struct {
+	ID          uint64
+	OrdersCount uint64
+	Orders      []*Order
+	Phone       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	IsDeleted   bool
+}

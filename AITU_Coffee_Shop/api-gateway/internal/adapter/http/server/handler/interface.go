@@ -12,3 +12,8 @@ type ClientUsecase interface {
 	Get(ctx context.Context, id uint64) (model.Client, error)
 	Delete(ctx context.Context, id uint64) error
 }
+
+type ClientStatisticUsecase interface {
+	Get(ctx context.Context, id uint64) (model.ClientStatistic, error)
+	List(ctx context.Context) ([]model.ClientStatistic, error)
+}

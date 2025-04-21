@@ -32,7 +32,8 @@ type (
 	}
 
 	GRPCClient struct {
-		UserServiceURL string `env:"GRPC_USER_SERVICE_URL,required"`
+		UserServiceURL       string `env:"GRPC_USER_SERVICE_URL,required"`
+		StatisticsServiceURL string `env:"GRPC_STATISTICS_SERVICE_URL,required"`
 	}
 )
 

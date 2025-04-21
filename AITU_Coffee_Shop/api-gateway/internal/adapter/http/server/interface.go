@@ -7,3 +7,7 @@ import (
 type ClientUsecase interface {
 	handler.ClientUsecase
 }
+
+type ClientStatisticUsecase interface {
+	handler.ClientStatisticUsecase
+}

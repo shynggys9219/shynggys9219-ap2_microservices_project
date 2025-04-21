@@ -33,7 +33,20 @@ func (c *Client) Create(ctx context.Context, request model.Client) (model.Client
 }
 
 func (c *Client) Update(ctx context.Context, request model.Client) (model.Client, error) {
-	return model.Client{}, nil
+	resp, err := c.client.Update(ctx, &svc.UpdateRequest{
+		Id:          request.ID,
+		Name:        request.Name,
+		Email:       request.Email,
+		Phone:       request.Phone,
+		Password:    request.NewPassword,
+		OldPassword: request.CurrentPassword,
+	})
+
+	if err != nil {
+		return model.Client{}, err
+	}
+
+	return dto.FROMGRPCClientUpdateResponse(resp), nil
 }
 
 func (c *Client) Get(ctx context.Context, id uint64) (model.Client, error) {
