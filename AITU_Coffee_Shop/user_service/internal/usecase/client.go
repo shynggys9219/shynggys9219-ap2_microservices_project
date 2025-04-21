@@ -7,6 +7,7 @@ import (
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/def"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"time"
 )
 
 type Client struct {
@@ -35,22 +36,19 @@ func (c *Client) Create(ctx context.Context, request model.Client) (model.Client
 		return model.Client{}, fmt.Errorf("c.hashNewPassword")
 	}
 
+	request.CreatedAt = time.Now().UTC()
+	request.UpdatedAt = time.Now().UTC()
 	err = c.repo.Create(ctx, request)
 	if err != nil {
 		return model.Client{}, err
 	}
 
-	newClient := model.Client{
-		ID:    id,
-		Email: request.Email,
-	}
-
-	err = c.producer.Push(ctx, newClient)
+	err = c.producer.Push(ctx, request)
 	if err != nil {
 		log.Println("c.producer.Push: %w", err)
 	}
 
-	return newClient, nil
+	return request, nil
 }
 
 func (c *Client) Update(ctx context.Context, request model.Client) (model.Client, error) {
