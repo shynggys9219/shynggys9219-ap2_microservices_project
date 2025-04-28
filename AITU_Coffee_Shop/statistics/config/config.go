@@ -13,6 +13,8 @@ type (
 		Mongo  mongo.Config
 		Server Server
 		Nats   Nats
+		Redis  Redis
+		Cache  Cache
 
 		Version string `env:"VERSION"`
 	}
@@ -39,6 +41,22 @@ type (
 	// NatsSubjects for main application
 	NatsSubjects struct {
 		ClientEventSubject string `env:"NATS_CLIENT_EVENT_SUBJECT,notEmpty"`
+	}
+
+	// Redis configuration for main application
+	Redis struct {
+		Hosts        []string      `env:"REDIS_HOSTS,notEmpty" envSeparator:","`
+		Password     string        `env:"REDIS_PASSWORD"`
+		TLSEnable    bool          `env:"REDIS_TLS_ENABLE" envDefault:"true"`
+		DialTimeout  time.Duration `env:"REDIS_DIAL_TIMEOUT" envDefault:"60s"`
+		WriteTimeout time.Duration `env:"REDIS_WRITE_TIMEOUT" envDefault:"60s"`
+		ReadTimeout  time.Duration `env:"REDIS_READ_TIMEOUT" envDefault:"30s"`
+	}
+
+	Cache struct {
+		ClientTTL time.Duration `env:"REDIS_CACHE_CLIENT_TTL" envDefault:"24h"`
+
+		CMSVariableRefreshTime time.Duration `env:"CLIENT_REFRESH_TIME" envDefault:"1m"`
 	}
 )
 

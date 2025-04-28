@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-
 	"log"
 	"os"
 	"os/signal"
@@ -12,12 +11,15 @@ import (
 
 	"github.com/shynggys9219/ap2_microservices_project/statistics/config"
 	grpcserver "github.com/shynggys9219/ap2_microservices_project/statistics/internal/adapter/grpc"
+	"github.com/shynggys9219/ap2_microservices_project/statistics/internal/adapter/inmemory"
 	mongorepo "github.com/shynggys9219/ap2_microservices_project/statistics/internal/adapter/mongo"
 	natshandler "github.com/shynggys9219/ap2_microservices_project/statistics/internal/adapter/nats/handler"
+	"github.com/shynggys9219/ap2_microservices_project/statistics/internal/adapter/redis"
 	"github.com/shynggys9219/ap2_microservices_project/statistics/internal/usecase"
 	mongocon "github.com/shynggys9219/ap2_microservices_project/statistics/pkg/mongo"
 	natsconn "github.com/shynggys9219/ap2_microservices_project/statistics/pkg/nats"
 	natsconsumer "github.com/shynggys9219/ap2_microservices_project/statistics/pkg/nats/consumer"
+	redisconn "github.com/shynggys9219/ap2_microservices_project/statistics/pkg/redis"
 )
 
 const serviceName = "statistics-service"
@@ -44,10 +46,23 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	}
 	log.Println("NATS connection status is", natsClient.Conn.Status().String())
 
+	// redis client
+	redisClient, err := redisconn.NewClient(ctx, (redisconn.Config)(cfg.Redis))
+	if err != nil {
+		return nil, fmt.Errorf("redisconn.NewClient: %w", err)
+	}
+	log.Println("Redis is connected:", redisClient.Ping(ctx) == nil)
+
+	// in memory cache (repo)
+	clientInMemoryCache := inmemory.NewClient()
+
+	// redis cache
+	clientRedisCache := redis.NewClient(redisClient, cfg.Cache.ClientTTL)
+
 	// Repository
 	clientRepo := mongorepo.NewClient(mongoDB.Conn)
 
-	clientUsecase := usecase.NewClient(clientRepo)
+	clientUsecase := usecase.NewClient(clientRepo, clientInMemoryCache, clientRedisCache)
 
 	// Nats consumers
 	natsPubSubConsumer := natsconsumer.NewPubSub(natsClient)
