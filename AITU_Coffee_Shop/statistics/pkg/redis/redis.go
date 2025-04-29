@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Hosts        []string
+	Host         string
 	Password     string
 	TLSEnable    bool
 	DialTimeout  time.Duration
@@ -19,14 +19,14 @@ type Config struct {
 }
 
 type Client struct {
-	client *redis.ClusterClient
+	client *redis.Client
 }
 
 func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 	// TODO: add telemetry later
 
-	clusterOptions := &redis.ClusterOptions{
-		Addrs:        cfg.Hosts,
+	opts := &redis.Options{
+		Addr:         cfg.Host,
 		DialTimeout:  cfg.DialTimeout,
 		ReadTimeout:  cfg.ReadTimeout,
 		WriteTimeout: cfg.WriteTimeout,
@@ -34,12 +34,12 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 	}
 
 	if cfg.TLSEnable {
-		clusterOptions.TLSConfig = &tls.Config{
+		opts.TLSConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
 		}
 	}
 
-	client := redis.NewClusterClient(clusterOptions)
+	client := redis.NewClient(opts)
 
 	err := client.Ping(ctx).Err()
 	if err != nil {
@@ -67,6 +67,6 @@ func (c *Client) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) Unwrap() *redis.ClusterClient {
+func (c *Client) Unwrap() *redis.Client {
 	return c.client
 }

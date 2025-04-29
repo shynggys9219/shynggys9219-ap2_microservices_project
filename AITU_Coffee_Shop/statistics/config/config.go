@@ -45,7 +45,7 @@ type (
 
 	// Redis configuration for main application
 	Redis struct {
-		Hosts        []string      `env:"REDIS_HOSTS,notEmpty" envSeparator:","`
+		Host         string        `env:"REDIS_HOSTS,notEmpty" envSeparator:","`
 		Password     string        `env:"REDIS_PASSWORD"`
 		TLSEnable    bool          `env:"REDIS_TLS_ENABLE" envDefault:"true"`
 		DialTimeout  time.Duration `env:"REDIS_DIAL_TIMEOUT" envDefault:"60s"`

@@ -39,7 +39,12 @@ func (c *Client) Create(ctx context.Context, client model.Client) error {
 }
 
 func (c *Client) Get(ctx context.Context, id uint64) (model.Client, error) {
-	return c.repo.GetWithFilter(ctx, model.ClientFilter{ID: def.Pointer(id)})
+	//client, exists := c.inMemoryCache.Get(id)
+	//if !exists {
+	//	return model.Client{}, fmt.Errorf("client with ID: %d not found", id)
+	//}
+
+	return c.redisCache.Get(ctx, id)
 }
 
 func (c *Client) List(ctx context.Context) ([]model.Client, error) {
