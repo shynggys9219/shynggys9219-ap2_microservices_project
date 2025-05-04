@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Client struct {
+type Customer struct {
 	ID              uint64
 	Name            string
 	Phone           string
@@ -17,7 +17,7 @@ type Client struct {
 	IsDeleted bool
 }
 
-type ClientFilter struct {
+type CustomerFilter struct {
 	ID           *uint64
 	Name         *string
 	Phone        *string
@@ -27,7 +27,7 @@ type ClientFilter struct {
 	IsDeleted *bool
 }
 
-type ClientUpdateData struct {
+type CustomerUpdateData struct {
 	ID           *uint64
 	Name         *string
 	Phone        *string

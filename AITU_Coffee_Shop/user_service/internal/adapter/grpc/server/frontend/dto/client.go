@@ -2,20 +2,20 @@ package dto
 
 import (
 	base "github.com/shynggys9219/ap2-apis-gen-user-service/base/frontend/v1"
-	svc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
+	svc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/customer/v1"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ToClientFromCreateRequest(req *svc.CreateRequest) (model.Client, error) {
-	return model.Client{
+func ToCustomerFromRegisterRequest(req *svc.RegisterRequest) (model.Customer, error) {
+	return model.Customer{
 		Email:           req.Email,
 		CurrentPassword: req.Password,
 	}, nil
 }
 
-func ToClientFromUpdateRequest(req *svc.UpdateRequest) (model.Client, error) {
-	return model.Client{
+func ToCustomerFromUpdateRequest(req *svc.UpdateRequest) (model.Customer, error) {
+	return model.Customer{
 		ID:              req.Id,
 		Name:            req.Name,
 		Phone:           req.Phone,
@@ -24,13 +24,14 @@ func ToClientFromUpdateRequest(req *svc.UpdateRequest) (model.Client, error) {
 	}, nil
 }
 
-func FromClient(client model.Client) *base.Client {
-	return &base.Client{
+func FromCustomer(client model.Customer) *base.Customer {
+	return &base.Customer{
 		Id:        client.ID,
 		Name:      client.Name,
 		Email:     client.Email,
 		Phone:     client.Phone,
 		CreatedAt: timestamppb.New(client.CreatedAt),
+		UpdatedAt: timestamppb.New(client.UpdatedAt),
 		IsDeleted: client.IsDeleted,
 	}
 }

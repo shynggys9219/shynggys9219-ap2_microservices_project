@@ -3,71 +3,95 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/model"
-	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/def"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/model"
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/def"
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/security"
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/transactor"
 )
 
-type Client struct {
-	ai       AiRepo
-	repo     ClientRepo
-	producer ClientEventStorage
+type Customer struct {
+	ai         AiRepo
+	repo       CustomerRepo
+	producer   CustomerEventStorage
+	callTx     transactor.WithinTransactionFunc
+	jwtManager *security.JWTManager
 }
 
-func NewUser(ai AiRepo, repo ClientRepo, producer ClientEventStorage) *Client {
-	return &Client{
-		ai:       ai,
-		repo:     repo,
-		producer: producer,
+func NewCustomer(
+	ai AiRepo,
+	repo CustomerRepo,
+	producer CustomerEventStorage,
+	callTx transactor.WithinTransactionFunc,
+	jwtManager *security.JWTManager,
+) *Customer {
+	return &Customer{
+		ai:         ai,
+		repo:       repo,
+		producer:   producer,
+		callTx:     callTx,
+		jwtManager: jwtManager,
 	}
 }
 
-func (c *Client) Create(ctx context.Context, request model.Client) (model.Client, error) {
-	id, err := c.ai.Next(ctx, model.ClientAi)
-	if err != nil {
-		return model.Client{}, err
-	}
-	request.ID = id
+func (uc *Customer) Register(ctx context.Context, request model.Customer) (uint64, error) {
+	txFn := func(ctx context.Context) error {
+		id, err := uc.ai.Next(ctx, model.CustomerAi)
 
-	request.NewPasswordHash, err = c.hashNewPassword(request.NewPassword)
-	if err != nil {
-		return model.Client{}, fmt.Errorf("c.hashNewPassword")
+		if err != nil {
+			return err
+		}
+		request.ID = id
+
+		request.NewPasswordHash, err = uc.hashNewPassword(request.NewPassword)
+		if err != nil {
+			return fmt.Errorf("uc.hashNewPassword")
+		}
+
+		request.CreatedAt = time.Now().UTC()
+		request.UpdatedAt = time.Now().UTC()
+		err = uc.repo.Create(ctx, request)
+		if err != nil {
+			return err
+		}
+
+		err = uc.producer.Push(ctx, request)
+		if err != nil {
+			log.Println("uc.producer.Push: %w", err)
+		}
+
+		return nil
 	}
 
-	request.CreatedAt = time.Now().UTC()
-	request.UpdatedAt = time.Now().UTC()
-	err = c.repo.Create(ctx, request)
+	err := uc.callTx(ctx, txFn)
 	if err != nil {
-		return model.Client{}, err
+		return 0, fmt.Errorf("uc.callTx: %w", err)
 	}
 
-	err = c.producer.Push(ctx, request)
-	if err != nil {
-		log.Println("c.producer.Push: %w", err)
-	}
-
-	return request, nil
+	return request.ID, nil
 }
 
-func (c *Client) Update(ctx context.Context, request model.Client) (model.Client, error) {
-	dbClient, err := c.Get(ctx, request.ID)
+func (uc *Customer) Update(ctx context.Context, request model.Customer) (model.Customer, error) {
+	dbCustomer, err := uc.Get(ctx, request.ID)
 	if err != nil {
-		return model.Client{}, err
+		return model.Customer{}, err
 	}
 
-	err = c.checkCurrentPassword(request.CurrentPassword, dbClient.PasswordHash)
+	err = uc.checkCurrentPassword(request.CurrentPassword, dbCustomer.PasswordHash)
 	if err != nil {
-		return model.Client{}, fmt.Errorf("passwords do not match")
+		return model.Customer{}, fmt.Errorf("passwords do not match")
 	}
 
-	request.NewPasswordHash, err = c.hashNewPassword(request.NewPassword)
+	request.NewPasswordHash, err = uc.hashNewPassword(request.NewPassword)
 	if err != nil {
-		return model.Client{}, fmt.Errorf("c.hashNewPassword")
+		return model.Customer{}, fmt.Errorf("uc.hashNewPassword")
 	}
 
-	updateData := model.ClientUpdateData{
+	updateData := model.CustomerUpdateData{
 		ID:           def.Pointer(request.ID),
 		Name:         def.Pointer(request.Name),
 		Phone:        def.Pointer(request.Phone),
@@ -76,29 +100,37 @@ func (c *Client) Update(ctx context.Context, request model.Client) (model.Client
 		UpdatedAt:    def.Pointer(request.UpdatedAt),
 	}
 
-	err = c.repo.Update(ctx, model.ClientFilter{ID: &request.ID}, updateData)
+	err = uc.repo.Update(ctx, model.CustomerFilter{ID: &request.ID}, updateData)
 	if err != nil {
-		return model.Client{}, err
+		return model.Customer{}, err
 	}
 
-	err = c.producer.Push(ctx, request)
+	err = uc.producer.Push(ctx, request)
 	if err != nil {
-		log.Println("c.producer.Push: %w", err)
+		log.Println("uc.producer.Push: %w", err)
 	}
 
 	return request, nil
 }
 
-func (c *Client) Get(ctx context.Context, id uint64) (model.Client, error) {
-	return c.repo.GetWithFilter(ctx, model.ClientFilter{ID: &id})
+func (uc *Customer) Login(ctx context.Context, request model.Token) (model.Token, error) {
+
+	return model.Token{}, nil
+}
+func (uc *Customer) RefreshToken(ctx context.Context, request model.Token) (model.Token, error) {
+	return model.Token{}, nil
 }
 
-func (c *Client) Delete(ctx context.Context, id uint64) error {
+func (uc *Customer) Get(ctx context.Context, id uint64) (model.Customer, error) {
+	return uc.repo.GetWithFilter(ctx, model.CustomerFilter{ID: &id})
+}
+
+func (uc *Customer) Delete(ctx context.Context, id uint64) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Client) hashNewPassword(password string) (string, error) {
+func (uc *Customer) hashNewPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -107,6 +139,6 @@ func (c *Client) hashNewPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func (c *Client) checkCurrentPassword(password, hashedPassword string) error {
+func (uc *Customer) checkCurrentPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

@@ -9,9 +9,10 @@ import (
 
 type (
 	Config struct {
-		Mongo  mongo.Config
-		Server Server
-		Nats   Nats
+		Mongo      mongo.Config
+		Server     Server
+		Nats       Nats
+		JWTManager JWTManager
 
 		Version string `env:"VERSION"`
 	}
@@ -48,7 +49,11 @@ type (
 
 	// NatsSubjects for main application
 	NatsSubjects struct {
-		ClientEventSubject string `env:"NATS_CLIENT_EVENT_SUBJECT,notEmpty"`
+		CustomerEventSubject string `env:"NATS_CUSTOMER_EVENT_SUBJECT,notEmpty"`
+	}
+
+	JWTManager struct {
+		SecretKey string `env:"JWT_MANAGER_SECRET_KEY,notEmpty"`
 	}
 )
 

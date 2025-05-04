@@ -1,5 +1,5 @@
 package model
 
 const (
-	ClientAi = "clients"
+	CustomerAi = "customers"
 )

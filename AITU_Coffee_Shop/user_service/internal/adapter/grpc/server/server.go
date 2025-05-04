@@ -10,26 +10,26 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	frontendsvc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/client/v1"
+	frontendsvc "github.com/shynggys9219/ap2-apis-gen-user-service/service/frontend/customer/v1"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/config"
 	"github.com/shynggys9219/ap2_microservices_project/user_svc/internal/adapter/grpc/server/frontend"
 )
 
 type API struct {
-	s             *grpc.Server
-	cfg           config.GRPCServer
-	addr          string
-	clientUsecase ClientUsecase
+	s               *grpc.Server
+	cfg             config.GRPCServer
+	addr            string
+	customerUsecase CustomerUsecase
 }
 
 func New(
 	cfg config.GRPCServer,
-	clientUsecase ClientUsecase,
+	customerUsecase CustomerUsecase,
 ) *API {
 	return &API{
-		cfg:           cfg,
-		addr:          fmt.Sprintf("0.0.0.0:%d", cfg.Port),
-		clientUsecase: clientUsecase,
+		cfg:             cfg,
+		addr:            fmt.Sprintf("0.0.0.0:%d", cfg.Port),
+		customerUsecase: customerUsecase,
 	}
 }
 
@@ -71,7 +71,7 @@ func (a *API) run(ctx context.Context) error {
 	a.s = grpc.NewServer(a.setOptions(ctx)...)
 
 	// Register bo services
-	frontendsvc.RegisterClientServiceServer(a.s, frontend.NewClient(a.clientUsecase))
+	frontendsvc.RegisterCustomerServiceServer(a.s, frontend.NewCustomer(a.customerUsecase))
 
 	// Register reflection service
 	reflection.Register(a.s)

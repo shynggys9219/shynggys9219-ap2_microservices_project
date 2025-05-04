@@ -10,13 +10,13 @@ type AiRepo interface {
 	Next(ctx context.Context, collection string) (uint64, error)
 }
 
-type ClientRepo interface {
-	Create(ctx context.Context, client model.Client) error
-	Update(ctx context.Context, filter model.ClientFilter, update model.ClientUpdateData) error
-	GetWithFilter(ctx context.Context, filter model.ClientFilter) (model.Client, error)
-	GetListWithFilter(ctx context.Context, filter model.ClientFilter) ([]model.Client, error)
+type CustomerRepo interface {
+	Create(ctx context.Context, customer model.Customer) error
+	Update(ctx context.Context, filter model.CustomerFilter, update model.CustomerUpdateData) error
+	GetWithFilter(ctx context.Context, filter model.CustomerFilter) (model.Customer, error)
+	GetListWithFilter(ctx context.Context, filter model.CustomerFilter) ([]model.Customer, error)
 }
 
-type ClientEventStorage interface {
-	Push(ctx context.Context, client model.Client) error
+type CustomerEventStorage interface {
+	Push(ctx context.Context, client model.Customer) error
 }

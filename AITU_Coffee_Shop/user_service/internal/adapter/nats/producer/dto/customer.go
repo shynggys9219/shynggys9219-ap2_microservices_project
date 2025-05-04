@@ -6,13 +6,14 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func FromClient(client model.Client) events.Client {
-	return events.Client{
+func FromCustomer(client model.Customer) *events.Customer {
+	return &events.Customer{
 		Id:        client.ID,
 		Name:      client.Name,
 		Email:     client.Email,
 		Phone:     client.Phone,
 		CreatedAt: timestamppb.New(client.CreatedAt),
+		UpdatedAt: timestamppb.New(client.UpdatedAt),
 		IsDeleted: client.IsDeleted,
 	}
 }

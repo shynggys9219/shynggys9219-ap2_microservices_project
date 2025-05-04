@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Client struct {
+type Customer struct {
 	ID           uint64    `bson:"_id"`
 	Name         string    `bson:"name"`
 	Phone        string    `bson:"phone"`
@@ -18,33 +18,33 @@ type Client struct {
 	IsDeleted bool `bson:"isDeleted"`
 }
 
-func FromClient(client model.Client) Client {
-	return Client{
-		ID:           client.ID,
-		Name:         client.Name,
-		Phone:        client.Phone,
-		Email:        client.Email,
-		PasswordHash: client.PasswordHash,
-		CreatedAt:    client.CreatedAt,
-		UpdatedAt:    client.UpdatedAt,
-		IsDeleted:    client.IsDeleted,
+func FromCustomer(customer model.Customer) Customer {
+	return Customer{
+		ID:           customer.ID,
+		Name:         customer.Name,
+		Phone:        customer.Phone,
+		Email:        customer.Email,
+		PasswordHash: customer.PasswordHash,
+		CreatedAt:    customer.CreatedAt,
+		UpdatedAt:    customer.UpdatedAt,
+		IsDeleted:    customer.IsDeleted,
 	}
 }
 
-func ToClient(client Client) model.Client {
-	return model.Client{
-		ID:           client.ID,
-		Name:         client.Name,
-		Phone:        client.Phone,
-		Email:        client.Email,
-		PasswordHash: client.PasswordHash,
-		CreatedAt:    client.CreatedAt,
-		UpdatedAt:    client.UpdatedAt,
-		IsDeleted:    client.IsDeleted,
+func ToCustomer(customer Customer) model.Customer {
+	return model.Customer{
+		ID:           customer.ID,
+		Name:         customer.Name,
+		Phone:        customer.Phone,
+		Email:        customer.Email,
+		PasswordHash: customer.PasswordHash,
+		CreatedAt:    customer.CreatedAt,
+		UpdatedAt:    customer.UpdatedAt,
+		IsDeleted:    customer.IsDeleted,
 	}
 }
 
-func FromClientFilter(filter model.ClientFilter) bson.M {
+func FromCustomerFilter(filter model.CustomerFilter) bson.M {
 	query := bson.M{}
 
 	if filter.ID != nil {
@@ -74,7 +74,7 @@ func FromClientFilter(filter model.ClientFilter) bson.M {
 	return query
 }
 
-func FromClientUpdateData(updateData model.ClientUpdateData) bson.M {
+func FromCustomerUpdateData(updateData model.CustomerUpdateData) bson.M {
 	query := bson.M{}
 
 	if updateData.Name != nil {
