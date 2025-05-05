@@ -9,8 +9,8 @@ import (
 
 func ToCustomerFromRegisterRequest(req *svc.RegisterRequest) (model.Customer, error) {
 	return model.Customer{
-		Email:           req.Email,
-		CurrentPassword: req.Password,
+		Email:       req.Email,
+		NewPassword: req.Password,
 	}, nil
 }
 
@@ -21,6 +21,7 @@ func ToCustomerFromUpdateRequest(req *svc.UpdateRequest) (model.Customer, error)
 		Phone:           req.Phone,
 		Email:           req.Email,
 		CurrentPassword: req.OldPassword,
+		NewPassword:     req.Password,
 	}, nil
 }
 

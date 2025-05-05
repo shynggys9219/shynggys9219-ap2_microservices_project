@@ -56,10 +56,19 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		log.Println("customerRepo.EnsureIndexes", err)
 	}
 
+	tokenRepo := mongorepo.NewRefreshToken(mongoDB.Conn)
+	err = customerRepo.EnsureIndexes(ctx)
+	if err != nil {
+		log.Println("customerRepo.EnsureIndexes", err)
+	}
+
 	jwtManager := security.NewJWTManager(cfg.JWTManager.SecretKey)
+	passwordManager := security.NewPasswordManager()
 
 	// UseCase
-	customerUsecase := usecase.NewCustomer(aiRepo, customerRepo, customerProducer, transactor.WithinTransaction, jwtManager)
+	customerUsecase := usecase.NewCustomer(
+		aiRepo, customerRepo, tokenRepo, customerProducer, transactor.WithinTransaction, jwtManager, passwordManager,
+	)
 
 	// gRPC server
 	gRPCServer := grpcserver.New(

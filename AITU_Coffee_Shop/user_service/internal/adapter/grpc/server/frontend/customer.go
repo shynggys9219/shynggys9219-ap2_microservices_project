@@ -3,6 +3,7 @@ package frontend
 import (
 	"context"
 	"fmt"
+	"github.com/shynggys9219/ap2_microservices_project/user_svc/pkg/security"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,7 +48,12 @@ func (c *Customer) Update(ctx context.Context, req *svc.UpdateRequest) (*svc.Upd
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	newClient, err := c.customerUsecase.Update(ctx, client)
+	token, ok := security.TokenFromCtx(ctx)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	newClient, err := c.customerUsecase.Update(ctx, token, client)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -61,7 +67,13 @@ func (c *Customer) Get(ctx context.Context, req *svc.GetRequest) (*svc.GetRespon
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("wrong ID: %d", req.Id))
 	}
-	client, err := c.customerUsecase.Get(ctx, req.Id)
+
+	token, ok := security.TokenFromCtx(ctx)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	client, err := c.customerUsecase.Get(ctx, token, req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -72,19 +84,35 @@ func (c *Customer) Get(ctx context.Context, req *svc.GetRequest) (*svc.GetRespon
 }
 
 func (c *Customer) Login(ctx context.Context, req *svc.LoginRequest) (*svc.LoginResponse, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, status.Error(codes.InvalidArgument, "email or password not provided")
+	}
+
+	token, err := c.customerUsecase.Login(ctx, req.Email, req.Password)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &svc.LoginResponse{
-		AccessToken:  "",
-		RefreshToken: "",
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
 	}, nil
 }
 
 func (c *Customer) RefreshToken(
 	ctx context.Context, req *svc.RefreshTokenRequest,
 ) (*svc.RefreshTokenResponse, error) {
+	if req.RefreshToken == "" {
+		return nil, status.Error(codes.InvalidArgument, "invalid refresh token")
+	}
+
+	token, err := c.customerUsecase.RefreshToken(ctx, req.RefreshToken)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &svc.RefreshTokenResponse{
-		AccessToken:  "",
-		RefreshToken: "",
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
 	}, nil
 }

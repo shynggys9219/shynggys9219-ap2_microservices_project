@@ -8,4 +8,5 @@ var (
 	ErrInvalidID              = errors.New("invalid id")
 	ErrNotFound               = errors.New("not found")
 	ErrEmailAlreadyRegistered = errors.New("email already registered")
+	ErrRefreshTokenExpired    = errors.New("refresh token is expired")
 )

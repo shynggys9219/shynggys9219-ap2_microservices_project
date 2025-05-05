@@ -17,6 +17,12 @@ type CustomerRepo interface {
 	GetListWithFilter(ctx context.Context, filter model.CustomerFilter) ([]model.Customer, error)
 }
 
+type RefreshTokenRepo interface {
+	Create(ctx context.Context, session model.Session) error
+	GetByToken(ctx context.Context, token string) (model.Session, error)
+	DeleteByToken(ctx context.Context, token string) error
+}
+
 type CustomerEventStorage interface {
 	Push(ctx context.Context, client model.Customer) error
 }

@@ -13,6 +13,7 @@ func (a *API) setOptions(ctx context.Context) []grpc.ServerOption {
 			MaxConnectionAge:      a.cfg.MaxConnectionAge,
 			MaxConnectionAgeGrace: a.cfg.MaxConnectionAgeGrace,
 		}),
+		grpc.UnaryInterceptor(AuthInterceptor("mySecretKey")),
 		grpc.MaxRecvMsgSize(a.cfg.MaxRecvMsgSizeMiB * (1024 * 1024)), // MaxRecvSize * 1 MB
 	}
 

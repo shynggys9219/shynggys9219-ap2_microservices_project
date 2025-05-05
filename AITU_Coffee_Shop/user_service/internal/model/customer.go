@@ -2,6 +2,10 @@ package model
 
 import "time"
 
+const (
+	CustomerRole = "customer"
+)
+
 type Customer struct {
 	ID              uint64
 	Name            string
@@ -10,7 +14,6 @@ type Customer struct {
 	CurrentPassword string
 	NewPassword     string
 	PasswordHash    string
-	NewPasswordHash string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 
