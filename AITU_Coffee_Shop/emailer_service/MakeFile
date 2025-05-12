@@ -1,0 +1,6 @@
+codegen:
+	@echo 'Deleting previous mocks...'
+	@find . -type d -name "mocks" -print -exec rm -rf {} +
+	@echo 'Generating...'
+	@go generate ./...
+	@mockery

@@ -1,5 +1,5 @@
 packages:
-  git.time2go.tech/gamification/services/achievement-manager:
+  github.com/shynggys9219/ap2_microservices_project/emailer_service:
     config:
       all: true
       recursive: true
