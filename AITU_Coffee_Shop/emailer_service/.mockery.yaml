@@ -1,0 +1,10 @@
+packages:
+  git.time2go.tech/gamification/services/achievement-manager:
+    config:
+      all: true
+      recursive: true
+      with-expecter: true
+      filename: "mock_{{.InterfaceName | snakecase}}.go"
+      dir: "{{.InterfaceDir}}/mocks"
+      mockname: "{{.InterfaceName}}"
+      outpkg: "mocks"

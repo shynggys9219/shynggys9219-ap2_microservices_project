@@ -1,0 +1,10 @@
+packages:
+   github.com/shynggys9219/ap2_microservices_project/user_svc:
+    config:
+      all: true
+      recursive: true
+      with-expecter: true
+      filename: "mock_{{.InterfaceName | snakecase}}.go"
+      dir: "{{.InterfaceDir}}/mocks"
+      mockname: "{{.InterfaceName}}"
+      outpkg: "mocks"
